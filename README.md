@@ -1,4 +1,4 @@
-# Taller Guiado Paso a Paso: Puertos, Servicios y Análisis de Tráfico de Red con Wireshark
+# Taller : Puertos, Servicios y Análisis de Tráfico de Red con Wireshark
 
 **Especialización en Seguridad de la Información — Curso: Ciberespacio**
 
