@@ -89,14 +89,42 @@ docker compose version
 
 ### Levantar el laboratorio
 
+Sigue estos cuatro comandos **en este orden**, siempre desde dentro de la carpeta `lab/` del repositorio:
+
 ```bash
-cd lab
-docker compose build
-docker compose up -d
-docker compose exec analyst bash   # aquí ejecutas todo lo que sigue
+cd lab                  # 1. entra a la carpeta del laboratorio
+docker compose build    # 2. construye las cuatro imágenes (tarda unos minutos la primera vez)
+docker compose up -d    # 3. levanta los cuatro contenedores en segundo plano
+docker compose ps       # 4. verifica que los cuatro estén "Up"
 ```
 
-Instrucciones completas, credenciales de cada servicio y la opción de usar clientes gráficos reales (FileZilla, PuTTY) contra `localhost` en [`lab/README.md`](lab/README.md) — incluye también la instalación de Docker en Windows y macOS.
+En el paso 4 deberías ver algo así — los cuatro en estado `Up`:
+
+```text
+NAME                  IMAGE               STATUS
+lab-analyst           lab-analyst         Up
+lab-ftp-server        lab-ftp-server      Up
+lab-ssh-server        lab-ssh-server      Up
+lab-telnet-server     lab-telnet-server   Up
+```
+
+**Cómo entrar al contenedor `analyst`** — aquí es donde ejecutas todo lo que sigue en el taller:
+
+```bash
+docker compose exec analyst bash
+```
+
+Tu *prompt* va a cambiar a algo como `root@<id-del-contenedor>:/work#` — eso confirma que ya estás dentro. Para salir, escribe `exit` (los contenedores siguen corriendo en segundo plano; no hay que reconstruirlos cada vez que entras y sales).
+
+**Problemas comunes al levantar el laboratorio:**
+
+| Síntoma | Causa más probable | Qué hacer |
+|---|---|---|
+| `no configuration file provided: not found` | No estás parado dentro de la carpeta `lab/`, o el repositorio no se descomprimió completo | Ejecuta `pwd` (debe terminar en `.../lab`) y `ls docker-compose.yml` para confirmar que el archivo está ahí |
+| `permission denied` al ejecutar `docker` | Tu usuario no pertenece al grupo `docker` | `sudo usermod -aG docker $USER && newgrp docker` (ver instalación arriba) |
+| `docker compose ps` no muestra los cuatro contenedores | `docker compose up -d` no llegó a levantarlos, o `build` falló antes | Repite `docker compose build` y revisa que no aparezca ningún error en rojo antes de seguir |
+
+Guía completa (incluye credenciales de cada servicio y la opción de usar clientes gráficos reales como FileZilla o PuTTY contra `localhost`) en [`lab/README.md`](lab/README.md) — ahí también está la instalación de Docker en Windows y macOS, y más ejemplos de solución de problemas.
 
 ---
 
@@ -136,17 +164,19 @@ Una dirección IP identifica un equipo, pero un mismo equipo ejecuta simultánea
 
 ### Práctica — Auditar tu propia superficie de exposición
 
-Antes de tocar Wireshark, audita qué está realmente escuchando en un sistema — el mismo primer paso que un analista ejecuta en una revisión de hardening.
+Antes de tocar Wireshark, audita qué está realmente escuchando en un sistema — el mismo primer paso que un analista ejecuta en una revisión de hardening. **Este ejercicio se hace en tu propio equipo (tu Kali u otro sistema donde trabajas normalmente), no dentro del laboratorio Docker** — todavía no necesitas tenerlo levantado para este paso.
 
 ```bash
-# Linux / dentro del contenedor analyst (para practicar con tu propio equipo anfitrión)
+# Linux (tu propio equipo)
 sudo ss -tulnp
 
-# Windows
+# Windows (tu propio equipo)
 netstat -ano
 ```
 
 Por cada puerto en estado `LISTEN`/`LISTENING`, identifica el proceso y compáralo contra la tabla anterior. Cualquier puerto que no reconozcas es candidato a investigación — así es como se detecta software no autorizado o *backdoors* en una auditoría real.
+
+> Si más adelante quieres comparar contra lo que expone el propio contenedor `analyst` (normalmente casi nada, porque solo corre herramientas bajo demanda), entra con `docker compose exec analyst bash` y ejecuta el mismo comando `ss -tulnp` ahí dentro — verás una superficie mucho más reducida que en tu equipo real.
 
 > **Punto de control:** ¿por qué dejar un servicio escuchando en un puerto que nadie usa cuenta como aumento de superficie de ataque, incluso si el servicio "no tiene vulnerabilidades conocidas"?
 
@@ -156,15 +186,26 @@ Por cada puerto en estado `LISTEN`/`LISTENING`, identifica el proceso y compára
 
 Wireshark captura tráfico usando Npcap (Windows) o libpcap (Linux/macOS) y lo decodifica capa por capa hasta el protocolo de aplicación `[7]`. Es la herramienta estándar de análisis forense, respuesta a incidentes y auditoría de tráfico.
 
+> ✅ **Si usas Kali Linux, no necesitas instalar nada.** Wireshark (interfaz gráfica) y `tshark` (línea de comandos) ya vienen preinstalados en la instalación por defecto de Kali. Verifica que estén ahí y pasa directo a la práctica:
+>
+> ```bash
+> wireshark --version
+> tshark --version
+> ```
+>
+> Si alguno de los dos comandos no existe (por ejemplo, en una instalación mínima de Kali sin el metapaquete por defecto), instálalos con el mismo comando de Debian/Ubuntu de abajo.
+
 **Instalación — Windows:** descarga el instalador desde wireshark.org, acepta instalar Npcap cuando se solicite, reinicia si lo pide el instalador.
 
-**Instalación — Linux (Debian/Ubuntu):**
+**Instalación — Linux que no sea Kali (Debian/Ubuntu) o Kali sin Wireshark preinstalado:**
 
 ```bash
-sudo apt update && sudo apt install wireshark
+sudo apt update && sudo apt install -y wireshark tshark
 sudo usermod -aG wireshark $USER   # permite capturar sin sudo
 # cierra sesión y vuelve a entrar para que el cambio de grupo tome efecto
 ```
+
+**Instalación — macOS:** `brew install --cask wireshark`, o el instalador desde wireshark.org.
 
 **Los cinco elementos que vas a usar todo el taller:** lista de interfaces, barra de filtro de visualización, lista de paquetes, panel de detalles (por capas: Frame → Ethernet → IP → TCP/UDP → aplicación) y panel de bytes hexadecimales.
 

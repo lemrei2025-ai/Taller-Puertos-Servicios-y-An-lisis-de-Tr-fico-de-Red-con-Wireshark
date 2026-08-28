@@ -83,27 +83,38 @@ Instala **Docker Desktop** desde [docker.com/products/docker-desktop](https://ww
 
 ## Puesta en marcha
 
-```bash
-cd lab
-docker compose build
-docker compose up -d
-```
-
-Verifica que los cuatro contenedores estén corriendo:
+Ejecuta estos comandos **en este orden**, siempre parado dentro de la carpeta `lab/`:
 
 ```bash
-docker compose ps
+cd lab                  # 1. entra a la carpeta del laboratorio
+docker compose build    # 2. construye las cuatro imágenes (tarda unos minutos la primera vez)
+docker compose up -d    # 3. levanta los cuatro contenedores en segundo plano
+docker compose ps       # 4. verifica que los cuatro estén "Up"
 ```
+
+El paso 4 debería mostrar algo así, con los cuatro contenedores en estado `Up`:
+
+```text
+NAME                  IMAGE               STATUS
+lab-analyst           lab-analyst         Up
+lab-ftp-server        lab-ftp-server      Up
+lab-ssh-server        lab-ssh-server      Up
+lab-telnet-server     lab-telnet-server   Up
+```
+
+Si alguno no aparece o dice `Exited`/`Restarting`, revisa la sección **Solución de problemas** al final de este archivo antes de continuar.
 
 ## Cómo trabajar durante el taller
 
-Todas las prácticas se ejecutan **dentro** del contenedor `analyst`:
+Todas las prácticas se ejecutan **dentro** del contenedor `analyst`. Para entrar:
 
 ```bash
 docker compose exec analyst bash
 ```
 
-Dentro de ese contenedor ya tienes disponibles `tshark`, `nmap`, `telnet`, `ssh`, `ftp`. La carpeta `/work/capturas` está enlazada con `../capturas` en tu equipo, así que cualquier archivo que guardes allí lo verás también fuera del contenedor (y es el lugar sugerido por la plantilla de bitácora).
+Sabrás que ya estás dentro porque el *prompt* de la terminal cambia a algo como `root@<id-del-contenedor>:/work#`. Ahí adentro ya tienes disponibles `tshark`, `nmap`, `telnet`, `ssh`, `ftp`, sin instalar nada más. La carpeta `/work/capturas` está enlazada con `../capturas` en tu equipo, así que cualquier archivo que guardes allí lo verás también fuera del contenedor (y es el lugar sugerido por la plantilla de bitácora).
+
+Para salir del contenedor: escribe `exit`. Los contenedores siguen corriendo en segundo plano — puedes volver a entrar con el mismo `docker compose exec analyst bash` las veces que quieras, sin reconstruir nada.
 
 ### Capturar tráfico con tshark
 
@@ -164,6 +175,17 @@ docker compose down -v
 docker compose build --no-cache
 docker compose up -d
 ```
+
+## Solución de problemas
+
+| Síntoma | Causa más probable | Qué hacer |
+|---|---|---|
+| `no configuration file provided: not found` | No estás parado dentro de la carpeta `lab/`, o el repositorio no se descomprimió completo | `pwd` debe terminar en `.../lab`; `ls docker-compose.yml` debe encontrar el archivo. Si no existe, vuelve a descomprimir el `.zip` del repositorio completo (no solo el README) |
+| `permission denied while trying to connect to the Docker daemon socket` | Tu usuario no pertenece al grupo `docker`, o el servicio no está corriendo | `sudo usermod -aG docker $USER && newgrp docker`; si sigue fallando, `sudo systemctl start docker` |
+| `docker compose ps` no muestra los cuatro contenedores, o alguno está `Exited` | `docker compose build` falló antes, o `up -d` no llegó a levantarlos | Repite `docker compose build` y lee el error en rojo; luego `docker compose up -d` de nuevo |
+| `docker compose exec analyst bash` dice que el servicio no existe | Los contenedores no están levantados todavía | Ejecuta primero `docker compose up -d` desde `lab/`, y confirma con `docker compose ps` que `lab-analyst` está `Up` |
+| Necesitas ver qué está pasando dentro de un contenedor que no arrancó | — | `docker compose logs analyst` (o el nombre del servicio que falle) muestra la salida de error |
+| Quedaste sin espacio o las imágenes están corruptas | Build parcial o caché dañada | `docker compose down -v && docker compose build --no-cache && docker compose up -d` |
 
 ## Notas
 
