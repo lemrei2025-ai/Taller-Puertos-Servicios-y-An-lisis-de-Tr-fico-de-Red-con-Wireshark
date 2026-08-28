@@ -3,48 +3,44 @@
 **Estudiante:** ____________________________________________
 **Fecha de inicio:** ____________________ **Fecha de entrega:** ____________________
 
-> Copia este archivo a `capturas/mi-bitacora.md` y complétalo a medida que avanzas por cada sesión. Guarda tus archivos `.pcapng` y capturas de pantalla dentro de la carpeta `capturas/`, referenciándolos desde aquí.
+> Copia este archivo a `capturas/mi-bitacora.md` y complétalo a medida que avanzas por el taller. Guarda tus archivos `.pcapng` y capturas de pantalla dentro de `capturas/`, referenciándolos desde aquí.
 
 ---
 
-## Sesión 1 — Fundamentos de puertos y servicios
-
-- Comando(s) ejecutado(s):
-- Puertos identificados en escucha (tabla propia):
+## 1. Puertos y servicios — auditoría de superficie de exposición
 
 | Puerto | Protocolo | Proceso | ¿Servicio esperado? |
 |---|---|---|---|
 |  |  |  |  |
 
-- Respuestas a las preguntas de reflexión 1.7:
+Respuesta al punto de control:
 
 ---
 
-## Sesión 2 — Instalación y primera captura con Wireshark
+## 2. Wireshark — primera captura
 
-- Sistema operativo utilizado:
-- Evidencia de instalación (captura de pantalla): `capturas/sesion2-instalacion.png`
-- Archivo de captura: `capturas/sesion2_captura1.pcapng`
+- Archivo de captura: `capturas/captura1.pcapng`
 - Observaciones sobre el tráfico HTTP capturado:
-- Respuestas a las preguntas de reflexión 2.7:
+
+Respuesta al punto de control:
 
 ---
 
-## Sesión 3 — Análisis de tráfico
+## 3. Análisis de tráfico
 
-- Archivo de captura: `capturas/sesion3_navegacion.pcapng`
+- Archivo de captura: `capturas/navegacion.pcapng`
 - Hallazgos en el Follow TCP Stream:
-- Resultado de Estadísticas > Conversaciones (host más activo, puertos observados):
-- Respuestas a las preguntas de reflexión 3.8:
+- Resultado de Estadísticas → Conversaciones (host más activo, puertos observados):
+
+Respuesta al punto de control:
 
 ---
 
-## Sesión 4 — Telnet vs SSH
+## 4. Telnet vs SSH
 
-- Archivo de captura Telnet: `capturas/sesion4_telnet.pcapng`
-- Evidencia de credenciales en texto claro (captura de pantalla): `capturas/sesion4-telnet-stream.png`
-- Archivo de captura SSH: `capturas/sesion4_ssh.pcapng`
-- Comparativo propio (paquetes, tamaño promedio, legibilidad):
+- Archivo de captura Telnet: `capturas/telnet.pcapng`
+- Evidencia de credenciales en texto claro (captura de pantalla): `capturas/telnet-stream.png`
+- Archivo de captura SSH: `capturas/ssh.pcapng`
 
 | Aspecto | Telnet | SSH |
 |---|---|---|
@@ -52,34 +48,71 @@
 | Tamaño promedio |  |  |
 | Contenido legible |  |  |
 
-- Respuestas a las preguntas de reflexión 4.8:
+Técnicas MITRE ATT&CK identificadas:
+
+Respuesta al punto de control:
 
 ---
 
-## Sesión 5 — Escaneo de puertos
+## 5. Escaneo de puertos
 
 - Comando Nmap ejecutado:
-- Archivo de captura: `capturas/sesion5_escaneo.pcapng`
+- Archivo de captura: `capturas/escaneo.pcapng`
 - Patrón observado en el Gráfico de E/S:
-- Comparación puertos reportados por Nmap vs. servicios reales activos (Sesión 1):
-- Respuestas a las preguntas de reflexión 5.7:
+- Comparación puertos reportados por Nmap vs. servicios reales activos (sección 1):
+
+Respuesta al punto de control:
 
 ---
 
-## Sesión 6 — FileZilla y gestión centralizada de la información
+## 6. FileZilla y gestión centralizada de la información
 
-- Evidencia de credenciales FTP en texto claro (captura de pantalla): `capturas/sesion6-ftp-stream.png`
+- Evidencia de credenciales FTP en texto claro (captura de pantalla): `capturas/ftp-stream.png`
 - Resultado de la prueba en modo SFTP:
-- Diagnóstico de riesgo (resumen propio):
-- Respuestas a las preguntas de reflexión 6.7:
+- Diagnóstico de riesgo (resumen propio, separando confidencialidad en tránsito de gestión de activos de información):
+- Mitigaciones propuestas (mínimo 3, priorizadas):
 
-### Documento grupal — Actividad 6.2 (política de mitigación)
+Respuesta al punto de control:
 
-- Integrantes del grupo:
-- Diagnóstico del riesgo observado:
-- Controles de mitigación propuestos (mínimo 3, priorizados):
-- Indicador de seguimiento propuesto:
-- Recomendación de protocolo/herramienta de reemplazo:
+---
+
+## 7. Laboratorio final — Informe de incidente simulado
+
+- Archivo de captura: `capturas/incidente.pcapng`
+
+**Resumen ejecutivo:**
+
+**Línea de tiempo:**
+
+| Hora | Evento | Paquete(s) |
+|---|---|---|
+|  |  |  |
+
+**Indicadores de compromiso (IOC):**
+
+**Técnicas MITRE ATT&CK identificadas:**
+
+| Técnica | ID | Evidencia |
+|---|---|---|
+| Reconocimiento (escaneo de puertos) | T1046 |  |
+| Fuerza bruta | T1110 |  |
+| Uso de credenciales válidas | T1078 |  |
+
+**Recomendaciones de contención y mitigación:**
+
+---
+
+## Checklist de hardening aplicado
+
+Marca lo que verificaste o corregiste durante el taller:
+
+- [ ] Inventario de puertos en escucha justificado
+- [ ] Telnet deshabilitado / migración a SSH
+- [ ] FTP sin cifrar deshabilitado / migración a SFTP
+- [ ] Autenticación reforzada en SSH (llaves y/o MFA)
+- [ ] Puertos de base de datos sin exposición innecesaria
+- [ ] Alertas de escaneo configuradas
+- [ ] Monitoreo de puertos críticos en el SIEM
 
 ---
 
@@ -87,12 +120,13 @@
 
 | Criterio | Autoevaluación (0-máx.) | Máximo |
 |---|---|---|
-| Bitácora de laboratorio |  | 30 |
+| Evidencia de laboratorio |  | 25 |
 | Dominio teórico |  | 15 |
-| Análisis de tráfico |  | 20 |
-| Caso Telnet vs SSH |  | 15 |
-| Caso FileZilla / gestión centralizada |  | 15 |
+| Análisis de tráfico |  | 15 |
+| Caso Telnet vs SSH |  | 10 |
+| Caso FileZilla / gestión centralizada |  | 10 |
+| Laboratorio final de incidente |  | 20 |
 | Ética y buenas prácticas |  | 5 |
 | **Total** |  | **100** |
 
-Ver la rúbrica completa en [`../docs/07-cierre-y-evaluacion.md`](../docs/07-cierre-y-evaluacion.md).
+Ver la rúbrica completa en el [`README.md`](../README.md#entregable-y-evaluación) del taller.

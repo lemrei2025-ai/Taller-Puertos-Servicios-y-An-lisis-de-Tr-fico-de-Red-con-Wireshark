@@ -1,0 +1,42 @@
+services:
+  telnet-server:
+    build: ./telnet-server
+    container_name: lab-telnet-server
+    networks: [lab-net]
+    ports:
+      - "2323:23"   # opcional: permite conectar clientes del equipo anfitrión a localhost:2323
+
+  ftp-server:
+    build: ./ftp-server
+    container_name: lab-ftp-server
+    networks: [lab-net]
+    ports:
+      - "2121:21"          # opcional: permite usar FileZilla u otro cliente gráfico contra localhost:2121
+      - "21100-21110:21100-21110"   # rango pasivo de FTP, necesario si usas el puerto 2121 desde el anfitrión
+
+  ssh-server:
+    build: ./ssh-server
+    container_name: lab-ssh-server
+    networks: [lab-net]
+    ports:
+      - "2222:22"   # opcional: permite conectar clientes del equipo anfitrión a localhost:2222
+
+  analyst:
+    build: ./analyst
+    container_name: lab-analyst
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    networks: [lab-net]
+    volumes:
+      - ../capturas:/work/capturas
+      - ./scripts:/work/scripts:ro
+    tty: true
+    stdin_open: true
+
+networks:
+  lab-net:
+    driver: bridge
+    # Red interna sin salida a Internet: garantiza que todo el tráfico generado
+    # (capturas, escaneos, intentos de conexión) permanece dentro del laboratorio.
+    internal: true
