@@ -123,6 +123,7 @@ Tu *prompt* va a cambiar a algo como `root@<id-del-contenedor>:/work#` — eso c
 | `no configuration file provided: not found` | No estás parado dentro de la carpeta `lab/`, o el repositorio no se descomprimió completo | Ejecuta `pwd` (debe terminar en `.../lab`) y `ls docker-compose.yml` para confirmar que el archivo está ahí |
 | `permission denied` al ejecutar `docker` | Tu usuario no pertenece al grupo `docker` | `sudo usermod -aG docker $USER && newgrp docker` (ver instalación arriba) |
 | `docker compose ps` no muestra los cuatro contenedores | `docker compose up -d` no llegó a levantarlos, o `build` falló antes | Repite `docker compose build` y revisa que no aparezca ningún error en rojo antes de seguir |
+| Al conectar (`telnet telnet-server`, `ssh labuser@ssh-server`, `ftp ftp-server`) sale `Connection refused` | Ese contenedor no terminó de iniciar, o construiste la imagen antes de una actualización de este repositorio | `docker compose logs telnet-server` (o el nombre del servicio) para ver el error; si la imagen es de una versión anterior del repo, reconstrúyela con `docker compose build --no-cache telnet-server && docker compose up -d` |
 
 Guía completa (incluye credenciales de cada servicio y la opción de usar clientes gráficos reales como FileZilla o PuTTY contra `localhost`) en [`lab/README.md`](lab/README.md) — ahí también está la instalación de Docker en Windows y macOS, y más ejemplos de solución de problemas.
 

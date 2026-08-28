@@ -2,12 +2,15 @@
 FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        xinetd telnetd \
+        busybox-static \
     && rm -rf /var/lib/apt/lists/* \
     && useradd -m -s /bin/bash labuser \
     && echo "labuser:Laboratorio123" | chpasswd
 
-RUN printf 'service telnet\n{\n  disable = no\n  flags = REUSE\n  socket_type = stream\n  wait = no\n  user = root\n  server = /usr/sbin/in.telnetd\n  log_on_failure += USERID\n}\n' > /etc/xinetd.d/telnet
-
+# Se usa el telnetd de BusyBox en primer plano (-F) en vez de xinetd: xinetd
+# depende de syslog y de varios archivos de estado que en un contenedor mínimo
+# pueden hacer que el servicio no quede escuchando (síntoma: "Connection
+# refused" al conectar). BusyBox telnetd no tiene esas dependencias y es el
+# patrón estándar para exponer Telnet en un contenedor Docker.
 EXPOSE 23
-CMD ["xinetd", "-dontfork"]
+CMD ["busybox", "telnetd", "-F", "-p", "23", "-l", "/bin/login"]

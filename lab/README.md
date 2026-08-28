@@ -185,6 +185,7 @@ docker compose up -d
 | `docker compose ps` no muestra los cuatro contenedores, o alguno está `Exited` | `docker compose build` falló antes, o `up -d` no llegó a levantarlos | Repite `docker compose build` y lee el error en rojo; luego `docker compose up -d` de nuevo |
 | `docker compose exec analyst bash` dice que el servicio no existe | Los contenedores no están levantados todavía | Ejecuta primero `docker compose up -d` desde `lab/`, y confirma con `docker compose ps` que `lab-analyst` está `Up` |
 | Necesitas ver qué está pasando dentro de un contenedor que no arrancó | — | `docker compose logs analyst` (o el nombre del servicio que falle) muestra la salida de error |
+| Al conectar (`telnet telnet-server`, `ssh labuser@ssh-server`, `ftp ftp-server`) sale `Connection refused` | El contenedor de ese servicio no terminó de iniciar, o la imagen se construyó con una versión anterior del `Dockerfile` de este repositorio | `docker compose ps` para confirmar que está `Up`; `docker compose logs telnet-server` (o el servicio que falle) para ver el error; si sigue fallando, reconstruye esa imagen sin caché: `docker compose build --no-cache telnet-server && docker compose up -d` |
 | Quedaste sin espacio o las imágenes están corruptas | Build parcial o caché dañada | `docker compose down -v && docker compose build --no-cache && docker compose up -d` |
 
 ## Notas
