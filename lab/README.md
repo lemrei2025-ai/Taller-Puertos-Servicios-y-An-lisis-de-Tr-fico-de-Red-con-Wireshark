@@ -18,6 +18,69 @@ Todos los servicios viven en la misma red Docker interna `lab-net`. Desde `analy
 - Docker y el plugin Docker Compose instalados (`docker compose version`).
 - Ningún otro requisito: no se necesita VirtualBox, VMware ni licencias adicionales.
 
+### Instalar Docker en Kali Linux
+
+Kali se basa en Debian, así que el método oficial de Docker para Debian funciona directamente.
+
+**Opción recomendada — repositorio oficial de Docker (versión más reciente, incluye el plugin Compose v2):**
+
+```bash
+# 1. Quitar paquetes antiguos si existieran
+sudo apt remove -y docker docker-engine docker.io containerd runc
+
+# 2. Dependencias para añadir el repositorio por HTTPS
+sudo apt update
+sudo apt install -y ca-certificates curl gnupg
+
+# 3. Clave GPG oficial de Docker
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+# 4. Repositorio de Docker (Kali usa la base "bookworm" de Debian)
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# 5. Instalar Docker Engine + CLI + containerd + plugin Compose
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# 6. Habilitar el servicio y verificar
+sudo systemctl enable --now docker
+sudo docker run hello-world
+```
+
+**Opción rápida — paquetes propios de los repositorios de Kali** (más simple, versión algo más antigua):
+
+```bash
+sudo apt update
+sudo apt install -y docker.io docker-compose-v2
+sudo systemctl enable --now docker
+sudo docker run hello-world
+```
+
+**Usar Docker sin `sudo`:**
+
+```bash
+sudo usermod -aG docker $USER
+newgrp docker            # o cierra sesión y vuelve a entrar
+docker run hello-world   # debe funcionar ya sin sudo
+```
+
+> Con el usuario `root` por defecto de una imagen Live/VM de Kali, el paso de `usermod`/`newgrp` no es necesario.
+
+Verifica al final:
+
+```bash
+docker --version
+docker compose version
+```
+
+### Instalar Docker en Windows y macOS
+
+Instala **Docker Desktop** desde [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/) y ábrelo al menos una vez para que el motor arranque. Docker Desktop ya incluye el plugin Compose v2, así que `docker compose version` debería funcionar directamente desde una terminal (PowerShell, cmd o la terminal de macOS) una vez instalado. En Windows se recomienda el backend WSL2 (la opción por defecto del instalador).
+
 ## Puesta en marcha
 
 ```bash

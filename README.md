@@ -28,6 +28,67 @@ Taller 100% práctico: cada concepto se aplica de inmediato en un laboratorio re
 
 Todo el taller se apoya en un laboratorio Docker reproducible que vive en la carpeta [`lab/`](lab/): cuatro contenedores (un servidor Telnet, uno FTP, uno SSH y una estación de análisis con Wireshark/tshark, Nmap y clientes Telnet/SSH/FTP) conectados en una red interna sin salida a Internet. **No necesitas máquinas virtuales ni averiguar ninguna dirección IP**: dentro del laboratorio, cada equipo se referencia simplemente por su nombre (`telnet-server`, `ftp-server`, `ssh-server`, `analyst`).
 
+### Instalar Docker en Kali Linux
+
+Kali es la distribución de referencia de la especialización, así que estos son los pasos concretos para dejar Docker funcionando ahí. Kali se basa en Debian, así que el método oficial de Docker para Debian aplica directamente.
+
+**Opción recomendada — repositorio oficial de Docker (versión más reciente, incluye el plugin Compose v2):**
+
+```bash
+# 1. Quitar paquetes antiguos si existieran (en una instalación nueva de Kali no suele haber nada que quitar)
+sudo apt remove -y docker docker-engine docker.io containerd runc
+
+# 2. Dependencias para añadir el repositorio por HTTPS
+sudo apt update
+sudo apt install -y ca-certificates curl gnupg
+
+# 3. Clave GPG oficial de Docker
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+# 4. Repositorio de Docker (Kali usa la base "bookworm" de Debian)
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# 5. Instalar Docker Engine + CLI + containerd + plugin Compose
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# 6. Habilitar el servicio y verificar
+sudo systemctl enable --now docker
+sudo docker run hello-world
+```
+
+**Opción rápida — paquetes propios de los repositorios de Kali** (más simple, puede traer una versión algo más antigua):
+
+```bash
+sudo apt update
+sudo apt install -y docker.io docker-compose-v2
+sudo systemctl enable --now docker
+sudo docker run hello-world
+```
+
+**Usar Docker sin `sudo`** (recomendado para no tener que anteponer `sudo` en cada comando del taller):
+
+```bash
+sudo usermod -aG docker $USER
+newgrp docker            # o cierra sesión y vuelve a entrar
+docker run hello-world   # debe funcionar ya sin sudo
+```
+
+> Si trabajas con el usuario `root` por defecto de una imagen Live/VM de Kali, el paso de `usermod`/`newgrp` no es necesario: `root` ya puede usar Docker directamente.
+
+Verifica al final que ambos comandos respondan correctamente:
+
+```bash
+docker --version
+docker compose version
+```
+
+### Levantar el laboratorio
+
 ```bash
 cd lab
 docker compose build
@@ -35,7 +96,7 @@ docker compose up -d
 docker compose exec analyst bash   # aquí ejecutas todo lo que sigue
 ```
 
-Instrucciones completas, credenciales de cada servicio y la opción de usar clientes gráficos reales (FileZilla, PuTTY) contra `localhost` en [`lab/README.md`](lab/README.md).
+Instrucciones completas, credenciales de cada servicio y la opción de usar clientes gráficos reales (FileZilla, PuTTY) contra `localhost` en [`lab/README.md`](lab/README.md) — incluye también la instalación de Docker en Windows y macOS.
 
 ---
 
